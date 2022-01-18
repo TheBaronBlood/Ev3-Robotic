@@ -10,7 +10,8 @@ from pybricks.media.ev3dev import SoundFile, ImageFile
 
 # This program requires LEGO EV3 MicroPython v2.0 or higher.
 # Click "Open user guide" on the EV3 extension tab for more information.
-
+# Quelle: http://www.inpharmix.com/jps/PID_Controller_For_Lego_Mindstorms_Robots.html
+#         https://thecodingfun.com/2020/06/16/lego-mindstorms-ev3-pid-line-follower-code-by-using-micropython-2-0/
 
 # Create your objects here.
 ev3 = EV3Brick()
