@@ -6,12 +6,12 @@ from pybricks.parameters import Port, Stop, Direction, Button, Color
 from pybricks.tools import wait, StopWatch, DataLog
 from pybricks.robotics import DriveBase
 from pybricks.media.ev3dev import SoundFile, ImageFile
+import time
 
 
 # This program requires LEGO EV3 MicroPython v2.0 or higher.
 # Click "Open user guide" on the EV3 extension tab for more information.
-# Quelle: http://www.inpharmix.com/jps/PID_Controller_For_Lego_Mindstorms_Robots.html
-#         https://thecodingfun.com/2020/06/16/lego-mindstorms-ev3-pid-line-follower-code-by-using-micropython-2-0/
+
 
 # Create your objects here.
 ev3 = EV3Brick()
@@ -19,7 +19,7 @@ ev3 = EV3Brick()
 BLACK = 0
 WHITE = 0
 
-DRIVE_SPEED = 125
+DRIVE_SPEED = 150
 ev3.speaker.set_volume(5)
 
 # PID-level-linefollower
@@ -33,13 +33,12 @@ def follow_line():
     #BLACK = 10
     #WHITE = 60
     #threshole = int((WHITE - BLACK) / 2)
+    PROPORTIONAL_GAIN = 5 # die Reaktionszeit wie schnell er auf den error reagieren soll
     
-    PROPORTIONAL_GAIN = 4.2 # die Reaktionszeit wie schnell er auf den error reagieren soll
-    
-    INTEGRAL_GAIN = 0.008   # Addiert alle erros, und kann so bestimmen ob er noch auf der Linie ist oder nicht:
+    INTEGRAL_GAIN = 0.0008  # Addiert alle erros, und kann so bestimmen ob er noch auf der Linie ist oder nicht:
                             #   (Plus_error <- White L_refection Black -> Minus_error <- White R_refection Black -> Plus_error)
     
-    DERIVATIVE_GAIN = 0.01  # Verschnellert oder Verlangsamt die Reationszeit je nach wie weit er von der Line Abweicht
+    DERIVATIVE_GAIN = 0.0057  # Verschnellert oder Verlangsamt die Reationszeit je nach wie weit er von der Line Abweicht
                             #   (White -> high react, Black -> low react)
 
     integral = 0
@@ -47,17 +46,26 @@ def follow_line():
     last_error = 0
 
     while True:
+        if left_sensor.color() == Color.GREEN:
+                print("Grenn_Left")
+                error -= 2000
+                time.sleep(1)
+        elif right_sensor.color() == Color.GREEN:
+                print("Grenn_right")
+                error += 2000
+                time.sleep(1)
+
         L_refection = left_sensor.reflection()
         R_refection = right_sensor.reflection()
         error = L_refection - R_refection
         integral = integral + error 
         ev3.screen.clear()
-        ev3.screen.draw_text(2,4,integral)
+        ev3.screen.draw_text(2,7,integral)
         print("Integral: ", integral)
         derivative = error - last_error
         turn = PROPORTIONAL_GAIN * error + INTEGRAL_GAIN * integral + DERIVATIVE_GAIN * derivative        
         right_motor.run(DRIVE_SPEED - turn)
-        left_motor.run(DRIVE_SPEED + turn)
+        left_motor.run(DRIVE_SPEED +turn)
         last_error = error
        
 
