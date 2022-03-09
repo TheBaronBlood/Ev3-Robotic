@@ -19,7 +19,7 @@ ev3 = EV3Brick()
 BLACK = 0
 WHITE = 0
 
-DRIVE_SPEED = 150
+DRIVE_SPEED = 215
 ev3.speaker.set_volume(5)
 
 # PID-level-linefollower
@@ -33,12 +33,12 @@ def follow_line():
     #BLACK = 10
     #WHITE = 60
     #threshole = int((WHITE - BLACK) / 2)
-    PROPORTIONAL_GAIN = 5 # die Reaktionszeit wie schnell er auf den error reagieren soll
+    PROPORTIONAL_GAIN = 4 # die Reaktionszeit wie schnell er auf den error reagieren soll
     
     INTEGRAL_GAIN = 0.0008  # Addiert alle erros, und kann so bestimmen ob er noch auf der Linie ist oder nicht:
                             #   (Plus_error <- White L_refection Black -> Minus_error <- White R_refection Black -> Plus_error)
     
-    DERIVATIVE_GAIN = 0.0057  # Verschnellert oder Verlangsamt die Reationszeit je nach wie weit er von der Line Abweicht
+    DERIVATIVE_GAIN = 0.004  # Verschnellert oder Verlangsamt die Reationszeit je nach wie weit er von der Line Abweicht
                             #   (White -> high react, Black -> low react)
 
     integral = 0
@@ -48,25 +48,31 @@ def follow_line():
     while True:
         if left_sensor.color() == Color.GREEN:
                 print("Grenn_Left")
-                error -= 2000
-                time.sleep(1)
+                #error -= 2000
+                left_motor.run(-200)
+                right_motor.run(500)
+                time.sleep(0.5)
         elif right_sensor.color() == Color.GREEN:
                 print("Grenn_right")
                 error += 2000
-                time.sleep(1)
+                left_motor.run(500)
+                right_motor.run(-200)
+                time.sleep(0.5)
+        else:
 
-        L_refection = left_sensor.reflection()
-        R_refection = right_sensor.reflection()
-        error = L_refection - R_refection
-        integral = integral + error 
-        ev3.screen.clear()
-        ev3.screen.draw_text(2,7,integral)
-        print("Integral: ", integral)
-        derivative = error - last_error
-        turn = PROPORTIONAL_GAIN * error + INTEGRAL_GAIN * integral + DERIVATIVE_GAIN * derivative        
-        right_motor.run(DRIVE_SPEED - turn)
-        left_motor.run(DRIVE_SPEED +turn)
-        last_error = error
+                L_refection = left_sensor.reflection()
+                R_refection = right_sensor.reflection()
+                error = L_refection - R_refection
+                integral = integral + error 
+                ev3.screen.clear()
+                ev3.screen.draw_text(2,7,integral)
+                print("Integral: ", integral)
+                derivative = error - last_error
+                turn = PROPORTIONAL_GAIN * error + INTEGRAL_GAIN * integral + DERIVATIVE_GAIN * derivative        
+                right_motor.run(DRIVE_SPEED - turn)
+                left_motor.run(DRIVE_SPEED +turn)
+                last_error = error
+        
        
 
 
@@ -75,3 +81,4 @@ while not any (ev3.buttons.pressed()):
         continue 
 
 follow_line()
+
